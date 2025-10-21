@@ -1,4 +1,4 @@
-# aps-vault-data-sdk-openapi
+# aps-vault-data-openapi
 
 ## What is OpenAPI?
 
