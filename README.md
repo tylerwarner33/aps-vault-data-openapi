@@ -1,0 +1,1 @@
+# aps-vault-data-sdk-openapi
