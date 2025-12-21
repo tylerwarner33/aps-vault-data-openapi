@@ -14,6 +14,9 @@ jobs:
     name: Generate C# SDK from OpenAPI Spec
     runs-on: ubuntu-latest
 
+    env:
+      KIOTA_VERSION: '1.20.0'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,7 +27,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Install Microsoft Kiota
-        run: dotnet tool install --global Microsoft.OpenApi.Kiota --version 1.20.0
+        run: dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ env.KIOTA_VERSION }}
 
       - name: Find OpenAPI spec file
         id: find-spec
@@ -32,8 +35,14 @@ jobs:
           # Find the OpenAPI spec file (looks for .yml or .yaml files)
           SPEC_FILE=$(find . -maxdepth 1 -name "*.yml" -o -name "*.yaml" | head -n 1)
           if [ -z "$SPEC_FILE" ]; then
-            echo "No OpenAPI spec file found"
+            echo "Error: No OpenAPI spec file found"
             exit 1
+          fi
+          # Check if multiple spec files exist
+          SPEC_COUNT=$(find . -maxdepth 1 -name "*.yml" -o -name "*.yaml" | wc -l)
+          if [ "$SPEC_COUNT" -gt 1 ]; then
+            echo "Warning: Multiple YAML files found, using: $SPEC_FILE"
+            find . -maxdepth 1 -name "*.yml" -o -name "*.yaml"
           fi
           echo "spec_file=$SPEC_FILE" >> $GITHUB_OUTPUT
           echo "Found OpenAPI spec: $SPEC_FILE"
@@ -60,8 +69,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### File Count by Type" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          find ./generated-sdk -type f -name "*.cs" | wc -l | xargs echo "C# files:"
-          find ./generated-sdk -type f -name "*.csproj" | wc -l | xargs echo "Project files:"
+          find ./generated-sdk -type f -name "*.cs" | wc -l | xargs echo "C# files:" >> $GITHUB_STEP_SUMMARY
+          find ./generated-sdk -type f -name "*.csproj" | wc -l | xargs echo "Project files:" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload SDK as artifact
