@@ -37,15 +37,15 @@ jobs:
       - name: Find OpenAPI spec file
         id: find-spec
         run: |
-          # Find the OpenAPI spec file (looks for .yml or .yaml files in root directory)
-          # Excludes .github directory to avoid workflow files
+          # Find the OpenAPI spec file (looks for .yml or .yaml files in root directory only)
+          # maxdepth 1 ensures we only search the root, not subdirectories like .github/
           SPEC_FILE=$(find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | sort | head -n 1)
           if [ -z "$SPEC_FILE" ]; then
             echo "Error: No OpenAPI spec file found"
             exit 1
           fi
           # Validate it's an OpenAPI spec by checking for 'openapi:' in the file
-          if ! grep -q "^openapi:" "$SPEC_FILE"; then
+          if ! grep -q "^[[:space:]]*openapi:" "$SPEC_FILE"; then
             echo "Error: File $SPEC_FILE does not appear to be an OpenAPI specification"
             exit 1
           fi
