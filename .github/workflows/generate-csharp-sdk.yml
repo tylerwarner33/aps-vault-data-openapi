@@ -1,0 +1,126 @@
+name: Generate C# SDK with Kiota
+
+on:
+  pull_request:
+    paths:
+      - '**.yml'
+      - '**.yaml'
+    branches:
+      - main
+      - master
+
+jobs:
+  generate-sdk:
+    name: Generate C# SDK from OpenAPI Spec
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      
+      - name: Install Microsoft Kiota
+        run: dotnet tool install --global Microsoft.OpenApi.Kiota --version 1.20.0
+      
+      - name: Find OpenAPI spec file
+        id: find-spec
+        run: |
+          # Find the OpenAPI spec file (looks for .yml or .yaml files)
+          SPEC_FILE=$(find . -maxdepth 1 -name "*.yml" -o -name "*.yaml" | head -n 1)
+          if [ -z "$SPEC_FILE" ]; then
+            echo "No OpenAPI spec file found"
+            exit 1
+          fi
+          echo "spec_file=$SPEC_FILE" >> $GITHUB_OUTPUT
+          echo "Found OpenAPI spec: $SPEC_FILE"
+      
+      - name: Generate C# SDK
+        run: |
+          kiota generate \
+            --language csharp \
+            --openapi ${{ steps.find-spec.outputs.spec_file }} \
+            --output ./generated-sdk \
+            --class-name VaultDataApiClient \
+            --namespace-name Autodesk.Vault.DataApi
+      
+      - name: Create SDK summary
+        run: |
+          echo "## Generated C# SDK Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**OpenAPI Spec:** ${{ steps.find-spec.outputs.spec_file }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Files" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          find ./generated-sdk -type f | sort >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### File Count by Type" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          find ./generated-sdk -type f -name "*.cs" | wc -l | xargs echo "C# files:"
+          find ./generated-sdk -type f -name "*.csproj" | wc -l | xargs echo "Project files:"
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload SDK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: csharp-sdk-${{ github.event.pull_request.number }}
+          path: ./generated-sdk/
+          retention-days: 30
+          if-no-files-found: error
+      
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Count generated files
+            function countFiles(dir, ext) {
+              let count = 0;
+              const files = fs.readdirSync(dir);
+              files.forEach(file => {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isDirectory()) {
+                  count += countFiles(filePath, ext);
+                } else if (file.endsWith(ext)) {
+                  count++;
+                }
+              });
+              return count;
+            }
+            
+            const csFileCount = countFiles('./generated-sdk', '.cs');
+            const csprojFileCount = countFiles('./generated-sdk', '.csproj');
+            
+            const comment = `## ✅ C# SDK Generated Successfully
+            
+            A C# SDK has been generated from the OpenAPI specification using Microsoft Kiota.
+            
+            ### 📊 Summary
+            - **C# Files Generated:** ${csFileCount}
+            - **Project Files:** ${csprojFileCount}
+            - **OpenAPI Spec:** \`${{ steps.find-spec.outputs.spec_file }}\`
+            
+            ### 📦 Download the SDK
+            The generated SDK is available as a workflow artifact. You can download it from the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to review the changes.
+            
+            ### 🔍 How to Review
+            1. Download the artifact from this workflow run
+            2. Extract and compare with your existing SDK (if any)
+            3. Review the generated client code to understand API changes
+            
+            ---
+            *This SDK was generated automatically by the [Generate C# SDK workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-csharp-sdk.yml)*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Generated SDK files (from Kiota)
+generated-sdk/
