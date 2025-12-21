@@ -14,6 +14,11 @@ jobs:
     name: Generate C# SDK from OpenAPI Spec
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read           # Read repository contents
+      pull-requests: write     # Comment on pull requests
+      actions: read            # Read workflow artifacts
+
     env:
       KIOTA_VERSION: '1.20.0'
 
