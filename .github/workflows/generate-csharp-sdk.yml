@@ -33,16 +33,16 @@ jobs:
         id: find-spec
         run: |
           # Find the OpenAPI spec file (looks for .yml or .yaml files)
-          SPEC_FILE=$(find . -maxdepth 1 -name "*.yml" -o -name "*.yaml" | head -n 1)
+          SPEC_FILE=$(find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | sort | head -n 1)
           if [ -z "$SPEC_FILE" ]; then
             echo "Error: No OpenAPI spec file found"
             exit 1
           fi
           # Check if multiple spec files exist
-          SPEC_COUNT=$(find . -maxdepth 1 -name "*.yml" -o -name "*.yaml" | wc -l)
+          SPEC_COUNT=$(find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | wc -l)
           if [ "$SPEC_COUNT" -gt 1 ]; then
             echo "Warning: Multiple YAML files found, using: $SPEC_FILE"
-            find . -maxdepth 1 -name "*.yml" -o -name "*.yaml"
+            find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | sort
           fi
           echo "spec_file=$SPEC_FILE" >> $GITHUB_OUTPUT
           echo "Found OpenAPI spec: $SPEC_FILE"
