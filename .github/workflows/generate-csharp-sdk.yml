@@ -59,7 +59,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Generated Languages" >> $GITHUB_STEP_SUMMARY
 
-          for LANGUAGE in CSharp; do
+          LANGUAGES=("CSharp")
+
+          for LANGUAGE in "${LANGUAGES[@]}"; do
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "#### ${LANGUAGE}" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
@@ -120,7 +122,7 @@ jobs:
 
             ### 📊 Summary
             - **OpenAPI Spec:** \`VaultDataApi.yml\`
-            - **Languages:** CSharp
+            - **Languages:** ${languages.join(', ')}
 
             ${summaryLines.join('\n            ')}
 
