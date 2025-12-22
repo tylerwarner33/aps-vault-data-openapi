@@ -1,0 +1,147 @@
+name: Generate API Clients with Kiota
+
+on:
+  pull_request:
+    paths:
+      - 'VaultDataApi.yml'
+    branches:
+      - main
+      - master
+
+jobs:
+  generate-clients:
+    name: Generate API Clients from OpenAPI Spec
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read           # Read repository contents
+      pull-requests: write     # Comment on pull requests
+      actions: read            # Read workflow artifacts
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ vars.DOTNET_VERSION }}
+
+      - name: Install Microsoft Kiota
+        run: dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ vars.KIOTA_VERSION }}
+
+      - name: Generate API clients
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          LANGUAGES=("CSharp")
+
+          for LANGUAGE in "${LANGUAGES[@]}"; do
+            echo "Generating client for ${LANGUAGE}"
+
+            OUTPUT="./Generated/ApiClients/${LANGUAGE}"
+
+            kiota generate \
+              --language "${LANGUAGE}" \
+              --openapi "./VaultDataApi.yml" \
+              --class-name VaultApiClient \
+              --namespace-name VaultDataApi \
+              --output "${OUTPUT}" \
+              --exclude-backward-compatible \
+              --clean-output
+          done
+
+      - name: Create SDK summary
+        run: |
+          echo "## Generated API Clients Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**OpenAPI Spec:** VaultDataApi.yml" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Languages" >> $GITHUB_STEP_SUMMARY
+
+          LANGUAGES=("CSharp")
+
+          for LANGUAGE in "${LANGUAGES[@]}"; do
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### ${LANGUAGE}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            OUTPUT_DIR="./Generated/ApiClients/${LANGUAGE}"
+            if [ -d "${OUTPUT_DIR}" ]; then
+              find "${OUTPUT_DIR}" -type f | wc -l | xargs echo "Total files:" >> $GITHUB_STEP_SUMMARY
+              find "${OUTPUT_DIR}" -type f -name "*.cs" | wc -l | xargs echo "C# files:" >> $GITHUB_STEP_SUMMARY
+              find "${OUTPUT_DIR}" -type f -name "*.csproj" | wc -l | xargs echo "Project files:" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Upload API clients as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-clients-${{ github.event.pull_request.number }}
+          path: ./Generated/ApiClients/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Count generated files
+            function countFiles(dir, ext) {
+              let count = 0;
+              if (!fs.existsSync(dir)) return 0;
+              const files = fs.readdirSync(dir);
+              files.forEach(file => {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isDirectory()) {
+                  count += countFiles(filePath, ext);
+                } else if (file.endsWith(ext)) {
+                  count++;
+                }
+              });
+              return count;
+            }
+
+            const languages = ['CSharp'];
+            let summaryLines = [];
+
+            languages.forEach(lang => {
+              const outputDir = `./Generated/ApiClients/${lang}`;
+              const csFileCount = countFiles(outputDir, '.cs');
+              const csprojFileCount = countFiles(outputDir, '.csproj');
+              summaryLines.push(`- **${lang}**: ${csFileCount} C# files, ${csprojFileCount} project files`);
+            });
+
+            const comment = `## ✅ API Clients Generated Successfully
+
+            API clients have been generated from the OpenAPI specification using Microsoft Kiota.
+
+            ### 📊 Summary
+            - **OpenAPI Spec:** \`VaultDataApi.yml\`
+            - **Languages:** ${languages.join(', ')}
+
+            ${summaryLines.join('\n            ')}
+
+            ### 📦 Download the Clients
+            The generated API clients are available as a workflow artifact. You can download them from the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to review the changes.
+
+            ### 🔍 How to Review
+            1. Download the artifact from this workflow run
+            2. Extract and compare with your existing client implementations (if any)
+            3. Review the generated client code to understand API changes
+
+            ---
+            *Clients were generated automatically by the [Generate API Clients workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/validate-openapi-spec.yml)*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
