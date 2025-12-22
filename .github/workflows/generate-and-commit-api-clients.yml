@@ -1,0 +1,68 @@
+name: Generate & Commit API Clients
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'VaultDataApi.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-and-commit:
+    name: Generate API Clients and Commit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ vars.DOTNET_VERSION }}
+
+      - name: Install Microsoft Kiota
+        run: |
+          dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ vars.KIOTA_VERSION }}
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Generate API clients
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+
+          LANGUAGES=("CSharp")
+
+          for LANGUAGE in "${LANGUAGES[@]}"; do
+            echo "Generating API client for ${LANGUAGE}"
+
+            OUTPUT="./Generated/ApiClients/${LANGUAGE}"
+
+            kiota generate \
+              --language "${LANGUAGE}" \
+              --openapi "./VaultDataApi.yml" \
+              --class-name VaultApiClient \
+              --namespace-name VaultDataApi \
+              --output "${OUTPUT}" \
+              --exclude-backward-compatible \
+              --clean-output
+          done
+
+      - name: Commit generated API clients
+        run: |
+          if git status --porcelain | grep -q '^ M\|^??'; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            git add Generated/ApiClients
+            git commit -m "chore: regenerate API clients from VaultDataApi.yml"
+            git push
+          else
+            echo "No generated client changes detected; skipping commit."
+          fi
