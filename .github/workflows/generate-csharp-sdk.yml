@@ -68,9 +68,9 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             OUTPUT_DIR="./Generated/ApiClients/${LANGUAGE}"
             if [ -d "${OUTPUT_DIR}" ]; then
-              find "${OUTPUT_DIR}" -type f | wc -l | xargs echo "Total files:"
-              find "${OUTPUT_DIR}" -type f -name "*.cs" | wc -l | xargs echo "C# files:"
-              find "${OUTPUT_DIR}" -type f -name "*.csproj" | wc -l | xargs echo "Project files:"
+              find "${OUTPUT_DIR}" -type f | wc -l | xargs echo "Total files:" >> $GITHUB_STEP_SUMMARY
+              find "${OUTPUT_DIR}" -type f -name "*.cs" | wc -l | xargs echo "C# files:" >> $GITHUB_STEP_SUMMARY
+              find "${OUTPUT_DIR}" -type f -name "*.csproj" | wc -l | xargs echo "Project files:" >> $GITHUB_STEP_SUMMARY
             fi
             echo '```' >> $GITHUB_STEP_SUMMARY
           done
