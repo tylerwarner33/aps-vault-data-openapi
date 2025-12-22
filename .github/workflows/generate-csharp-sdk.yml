@@ -18,9 +18,6 @@ jobs:
       pull-requests: write     # Comment on pull requests
       actions: read            # Read workflow artifacts
 
-    env:
-      KIOTA_VERSION: '1.20.0'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,10 +25,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: ${{ vars.DOTNET_VERSION }}
 
       - name: Install Microsoft Kiota
-        run: dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ env.KIOTA_VERSION }}
+        run: dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ vars.KIOTA_VERSION }}
 
       - name: Generate API clients
         run: |
