@@ -135,7 +135,7 @@ jobs:
             3. Review the generated client code to understand API changes
 
             ---
-            *Clients were generated automatically by the [Generate API Clients workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-csharp-sdk.yml)*`;
+            *Clients were generated automatically by the [Generate API Clients workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/validate-openapi-spec.yml)*`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
