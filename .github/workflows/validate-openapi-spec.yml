@@ -32,7 +32,9 @@ jobs:
 
       - name: Generate API clients
         run: |
-          set -e
+          set -o errexit
+          set -o nounset
+          set -o pipefail
 
           LANGUAGES=("CSharp")
 
