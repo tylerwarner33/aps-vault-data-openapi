@@ -417,5 +417,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-# Generated SDK files (from Kiota)
-generated-sdk/
+# Generated API clients (from Kiota)
+Generated/

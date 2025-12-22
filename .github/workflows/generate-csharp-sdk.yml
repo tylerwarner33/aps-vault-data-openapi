@@ -1,17 +1,16 @@
-name: Generate C# SDK with Kiota
+name: Generate API Clients with Kiota
 
 on:
   pull_request:
     paths:
-      - '**.yml'
-      - '**.yaml'
+      - 'VaultDataApi.yml'
     branches:
       - main
       - master
 
 jobs:
-  generate-sdk:
-    name: Generate C# SDK from OpenAPI Spec
+  generate-clients:
+    name: Generate API Clients from OpenAPI Spec
     runs-on: ubuntu-latest
 
     permissions:
@@ -34,61 +33,53 @@ jobs:
       - name: Install Microsoft Kiota
         run: dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ env.KIOTA_VERSION }}
 
-      - name: Find OpenAPI spec file
-        id: find-spec
+      - name: Generate API clients
         run: |
-          # Find the OpenAPI spec file (looks for .yml or .yaml files in root directory only)
-          # maxdepth 1 ensures we only search the root, not subdirectories like .github/
-          SPEC_FILE=$(find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | sort | head -n 1)
-          if [ -z "$SPEC_FILE" ]; then
-            echo "Error: No OpenAPI spec file found"
-            exit 1
-          fi
-          # Validate it's an OpenAPI spec by checking for 'openapi:' in the file
-          if ! grep -q "^[[:space:]]*openapi:" "$SPEC_FILE"; then
-            echo "Error: File $SPEC_FILE does not appear to be an OpenAPI specification"
-            exit 1
-          fi
-          # Check if multiple spec files exist
-          SPEC_COUNT=$(find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | wc -l)
-          if [ "$SPEC_COUNT" -gt 1 ]; then
-            echo "Warning: Multiple YAML files found, using: $SPEC_FILE"
-            find . -maxdepth 1 \( -name "*.yml" -o -name "*.yaml" \) | sort
-          fi
-          echo "spec_file=$SPEC_FILE" >> $GITHUB_OUTPUT
-          echo "Found OpenAPI spec: $SPEC_FILE"
+          set -e
 
-      - name: Generate C# SDK
-        run: |
-          kiota generate \
-            --language csharp \
-            --openapi ${{ steps.find-spec.outputs.spec_file }} \
-            --output ./generated-sdk \
-            --class-name VaultDataApiClient \
-            --namespace-name Autodesk.Vault.DataApi
+          LANGUAGES=("CSharp")
+
+          for LANGUAGE in "${LANGUAGES[@]}"; do
+            echo "Generating client for ${LANGUAGE}"
+
+            OUTPUT="./Generated/ApiClients/${LANGUAGE}"
+
+            kiota generate \
+              --language "${LANGUAGE}" \
+              --openapi "./VaultDataApi.yml" \
+              --class-name VaultApiClient \
+              --namespace-name VaultDataApi \
+              --output "${OUTPUT}" \
+              --exclude-backward-compatible \
+              --clean-output
+          done
 
       - name: Create SDK summary
         run: |
-          echo "## Generated C# SDK Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Generated API Clients Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**OpenAPI Spec:** ${{ steps.find-spec.outputs.spec_file }}" >> $GITHUB_STEP_SUMMARY
+          echo "**OpenAPI Spec:** VaultDataApi.yml" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Generated Files" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          find ./generated-sdk -type f | sort >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### File Count by Type" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          find ./generated-sdk -type f -name "*.cs" | wc -l | xargs echo "C# files:" >> $GITHUB_STEP_SUMMARY
-          find ./generated-sdk -type f -name "*.csproj" | wc -l | xargs echo "Project files:" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### Generated Languages" >> $GITHUB_STEP_SUMMARY
 
-      - name: Upload SDK as artifact
+          for LANGUAGE in CSharp; do
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### ${LANGUAGE}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            OUTPUT_DIR="./Generated/ApiClients/${LANGUAGE}"
+            if [ -d "${OUTPUT_DIR}" ]; then
+              find "${OUTPUT_DIR}" -type f | wc -l | xargs echo "Total files:"
+              find "${OUTPUT_DIR}" -type f -name "*.cs" | wc -l | xargs echo "C# files:"
+              find "${OUTPUT_DIR}" -type f -name "*.csproj" | wc -l | xargs echo "Project files:"
+            fi
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Upload API clients as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: csharp-sdk-${{ github.event.pull_request.number }}
-          path: ./generated-sdk/
+          name: api-clients-${{ github.event.pull_request.number }}
+          path: ./Generated/ApiClients/
           retention-days: 30
           if-no-files-found: error
 
@@ -102,6 +93,7 @@ jobs:
             // Count generated files
             function countFiles(dir, ext) {
               let count = 0;
+              if (!fs.existsSync(dir)) return 0;
               const files = fs.readdirSync(dir);
               files.forEach(file => {
                 const filePath = path.join(dir, file);
@@ -115,28 +107,36 @@ jobs:
               return count;
             }
 
-            const csFileCount = countFiles('./generated-sdk', '.cs');
-            const csprojFileCount = countFiles('./generated-sdk', '.csproj');
+            const languages = ['CSharp'];
+            let summaryLines = [];
 
-            const comment = `## ✅ C# SDK Generated Successfully
+            languages.forEach(lang => {
+              const outputDir = `./Generated/ApiClients/${lang}`;
+              const csFileCount = countFiles(outputDir, '.cs');
+              const csprojFileCount = countFiles(outputDir, '.csproj');
+              summaryLines.push(`- **${lang}**: ${csFileCount} C# files, ${csprojFileCount} project files`);
+            });
 
-            A C# SDK has been generated from the OpenAPI specification using Microsoft Kiota.
+            const comment = `## ✅ API Clients Generated Successfully
+
+            API clients have been generated from the OpenAPI specification using Microsoft Kiota.
 
             ### 📊 Summary
-            - **C# Files Generated:** ${csFileCount}
-            - **Project Files:** ${csprojFileCount}
-            - **OpenAPI Spec:** \`${{ steps.find-spec.outputs.spec_file }}\`
+            - **OpenAPI Spec:** \`VaultDataApi.yml\`
+            - **Languages:** CSharp
 
-            ### 📦 Download the SDK
-            The generated SDK is available as a workflow artifact. You can download it from the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to review the changes.
+            ${summaryLines.join('\n            ')}
+
+            ### 📦 Download the Clients
+            The generated API clients are available as a workflow artifact. You can download them from the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) to review the changes.
 
             ### 🔍 How to Review
             1. Download the artifact from this workflow run
-            2. Extract and compare with your existing SDK (if any)
+            2. Extract and compare with your existing client implementations (if any)
             3. Review the generated client code to understand API changes
 
             ---
-            *This SDK was generated automatically by the [Generate C# SDK workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-csharp-sdk.yml)*`;
+            *Clients were generated automatically by the [Generate API Clients workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/generate-csharp-sdk.yml)*`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
