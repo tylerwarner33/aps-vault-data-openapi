@@ -1,4 +1,4 @@
-name: Generate API Clients with Kiota
+name: Generate API Clients
 
 on:
   pull_request:
