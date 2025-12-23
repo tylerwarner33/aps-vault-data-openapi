@@ -13,17 +13,17 @@ permissions:
   contents: write
 
 jobs:
-  generate-and-commit:
+  generate-and-commit-clients:
     name: Generate API Clients and Commit
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup .NET SDK
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ vars.DOTNET_VERSION }}
@@ -33,7 +33,7 @@ jobs:
           dotnet tool install --global Microsoft.OpenApi.Kiota --version ${{ vars.KIOTA_VERSION }}
           echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-      - name: Generate API clients
+      - name: Generate API Clients
         run: |
           set -o errexit
           set -o nounset
@@ -56,7 +56,7 @@ jobs:
               --clean-output
           done
 
-      - name: Commit generated API clients
+      - name: Commit Generated API Clients
         run: |
           if git status --porcelain | grep -q '^ M\|^??'; then
             git config user.name "github-actions[bot]"
