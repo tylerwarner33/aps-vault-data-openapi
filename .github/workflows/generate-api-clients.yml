@@ -2,11 +2,10 @@ name: Generate API Clients with Kiota
 
 on:
   pull_request:
-    paths:
-      - 'VaultDataApi.yml'
     branches:
       - main
-      - master
+    paths:
+      - 'VaultDataApi.yml'
 
 jobs:
   generate-clients:
