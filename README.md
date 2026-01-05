@@ -1,5 +1,7 @@
 # aps-vault-data-openapi
 
+This repo is used for updating the Autodesk Vault Data API OpenAPI specification since it is not currently included in the [aps-sdk-openapi](https://github.com/autodesk-platform-services/aps-sdk-openapi) repo. The versioning from the [Vault Data API OpenAPI specification endpoint](https://aps.autodesk.com/en/docs/vaultdataapi/v2/reference/http/getapispec-GET/) will remain to know if it is synced. A text comparison can be used to know what has been updated.
+
 ## Automated API Client Generation
 
 This repository includes an automated GitHub Actions workflow that generates API clients using [Microsoft Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) whenever the OpenAPI specification (`VaultDataApi.yml`) is updated via a pull request.
