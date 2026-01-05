@@ -2,6 +2,12 @@
 
 This repo is used for updating the Autodesk Vault Data API OpenAPI specification since it is not currently included in the [aps-sdk-openapi](https://github.com/autodesk-platform-services/aps-sdk-openapi) repo. The versioning from the [Vault Data API OpenAPI specification endpoint](https://aps.autodesk.com/en/docs/vaultdataapi/v2/reference/http/getapispec-GET/) will remain to know if it is synced. A text comparison can be used to know what has been updated.
 
+## What is OpenAPI?
+
+From the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification):
+
+> The OpenAPI Specification (OAS) defines a standard, programming language-agnostic interface description for HTTP APIs, which allows both humans and computers to discover and understand the capabilities of a service without requiring access to source code, additional documentation, or inspection of network traffic. When properly defined via OpenAPI, a consumer can understand and interact with the remote service with a minimal amount of implementation logic. Similar to what interface descriptions have done for lower-level programming, the OpenAPI Specification removes guesswork in calling a service.
+
 ## Automated API Client Generation
 
 This repository includes an automated GitHub Actions workflow that generates API clients using [Microsoft Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) whenever the OpenAPI specification (`VaultDataApi.yml`) is updated via a pull request.
@@ -13,12 +19,6 @@ This repository includes an automated GitHub Actions workflow that generates API
 3. **Artifact**: The generated clients are uploaded as a workflow artifact for comparison & review.
 4. **Comment**: A summary comment is added to the PR with details about the generated clients.
 4. **Merge**: Once the PR is approved & merged, another workflow will run to generate the API clients & commit the changes.
-
-## What is OpenAPI?
-
-From the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification):
-
-> The OpenAPI Specification (OAS) defines a standard, programming language-agnostic interface description for HTTP APIs, which allows both humans and computers to discover and understand the capabilities of a service without requiring access to source code, additional documentation, or inspection of network traffic. When properly defined via OpenAPI, a consumer can understand and interact with the remote service with a minimal amount of implementation logic. Similar to what interface descriptions have done for lower-level programming, the OpenAPI Specification removes guesswork in calling a service.
 
 ## Resources
 
