@@ -4060,11 +4060,11 @@ components:
             folder:
               type: object
               additionalProperties:
-                $ref: '#/components/schemas/Folder'
+                $ref: '#/components/schemas/FolderCollection'
             propertyDefinition:
               type: object
               additionalProperties:
-                $ref: '#/components/schemas/PropertyDefinition'
+                $ref: '#/components/schemas/PropertyDefinitionCollection'
     FileObject:
       title: File - we cannot directly use File as class name, as it's occupied.
       type: object
