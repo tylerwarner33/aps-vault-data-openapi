@@ -49,6 +49,14 @@ namespace VaultDataApi.Models
 #else
         public string CreateUserName { get; set; }
 #endif
+        /// <summary>The entityType property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? EntityType { get; set; }
+#nullable restore
+#else
+        public string EntityType { get; set; }
+#endif
         /// <summary>Get the full vault path for this folder (ie. $/Folder1)</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -137,6 +145,7 @@ namespace VaultDataApi.Models
                 { "children", n => { Children = n.GetStringValue(); } },
                 { "createDate", n => { CreateDate = n.GetStringValue(); } },
                 { "createUserName", n => { CreateUserName = n.GetStringValue(); } },
+                { "entityType", n => { EntityType = n.GetStringValue(); } },
                 { "fullName", n => { FullName = n.GetStringValue(); } },
                 { "id", n => { Id = n.GetStringValue(); } },
                 { "isCloaked", n => { IsCloaked = n.GetBoolValue(); } },
@@ -162,6 +171,7 @@ namespace VaultDataApi.Models
             writer.WriteStringValue("children", Children);
             writer.WriteStringValue("createDate", CreateDate);
             writer.WriteStringValue("createUserName", CreateUserName);
+            writer.WriteStringValue("entityType", EntityType);
             writer.WriteStringValue("fullName", FullName);
             writer.WriteStringValue("id", Id);
             writer.WriteBoolValue("isCloaked", IsCloaked);

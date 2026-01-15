@@ -111,7 +111,7 @@ namespace VaultDataApi.Models
             public static global::VaultDataApi.Models.FolderCollection.FolderCollection_results CreateFromDiscriminatorValue(IParseNode parseNode)
             {
                 _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-                var mappingValue = parseNode.GetChildNode("")?.GetStringValue();
+                var mappingValue = parseNode.GetChildNode("entityType")?.GetStringValue();
                 var result = new global::VaultDataApi.Models.FolderCollection.FolderCollection_results();
                 if("Folder".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
                 {
