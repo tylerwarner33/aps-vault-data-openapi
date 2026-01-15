@@ -62,7 +62,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            git add Generated/ApiClients
+            git add -f Generated/ApiClients
             git commit -m "chore: regenerate API clients from VaultDataApi.yml"
             git push
           else
