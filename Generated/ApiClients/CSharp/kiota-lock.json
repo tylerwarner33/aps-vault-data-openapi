@@ -1,8 +1,8 @@
 {
-  "descriptionHash": "6ED47FD530E4355A43CCA7A550CFA12A891ECF538B28BE1DE9CC7E9F757A4C87E51BCD55DC74D4B4B3BE51B9F12F0FD5196883A004EE09F6C16A9C64EA8AB8D5",
+  "descriptionHash": "61FD9CDED5DF8ABB1A03C8E3A84A29B8C03D102F37C048B33B465AC5B8BACDBA944ADB99058FD47F45E171823E17E398E5F0FC4EDD3961146018E4D91355A996",
   "descriptionLocation": "../../../VaultDataApi.yml",
   "lockFileVersion": "1.0.0",
-  "kiotaVersion": "1.28.0",
+  "kiotaVersion": "1.32.2",
   "clientClassName": "VaultApiClient",
   "typeAccessModifier": "Public",
   "clientNamespaceName": "VaultDataApi",
