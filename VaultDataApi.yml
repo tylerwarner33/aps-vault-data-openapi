@@ -4913,9 +4913,7 @@ components:
         results:
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/PropertyDefinition'
-              - $ref: '#/components/schemas/PropertyDefinitionExtended'
+            $ref: '#/components/schemas/PropertyDefinition'
     RevisionOptionsEnum:
       title: Revision Options Enum
       type: string
