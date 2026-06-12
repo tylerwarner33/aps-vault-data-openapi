@@ -4855,7 +4855,7 @@ components:
       description: Property object.
       properties:
         propertyDefinitionId:
-          type: string
+          type: integer
           description: Unique identifier for a server-based property definition
         definition:
           $ref: '#/components/schemas/PropertyDefinition'
