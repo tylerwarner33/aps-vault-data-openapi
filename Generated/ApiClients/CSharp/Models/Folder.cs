@@ -49,6 +49,14 @@ namespace VaultDataApi.Models
 #else
         public string CreateUserName { get; set; }
 #endif
+        /// <summary>The entityType property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? EntityType { get; set; }
+#nullable restore
+#else
+        public string EntityType { get; set; }
+#endif
         /// <summary>Get the full vault path for this folder (ie. $/Folder1)</summary>
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
 #nullable enable
@@ -121,7 +129,7 @@ namespace VaultDataApi.Models
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
         public static global::VaultDataApi.Models.Folder CreateFromDiscriminatorValue(IParseNode parseNode)
         {
-            _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
+            if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
             return new global::VaultDataApi.Models.Folder();
         }
         /// <summary>
@@ -137,6 +145,7 @@ namespace VaultDataApi.Models
                 { "children", n => { Children = n.GetStringValue(); } },
                 { "createDate", n => { CreateDate = n.GetStringValue(); } },
                 { "createUserName", n => { CreateUserName = n.GetStringValue(); } },
+                { "entityType", n => { EntityType = n.GetStringValue(); } },
                 { "fullName", n => { FullName = n.GetStringValue(); } },
                 { "id", n => { Id = n.GetStringValue(); } },
                 { "isCloaked", n => { IsCloaked = n.GetBoolValue(); } },
@@ -156,12 +165,13 @@ namespace VaultDataApi.Models
         /// <param name="writer">Serialization writer to use to serialize this model</param>
         public virtual void Serialize(ISerializationWriter writer)
         {
-            _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteStringValue("category", Category);
             writer.WriteDoubleValue("categoryColor", CategoryColor);
             writer.WriteStringValue("children", Children);
             writer.WriteStringValue("createDate", CreateDate);
             writer.WriteStringValue("createUserName", CreateUserName);
+            writer.WriteStringValue("entityType", EntityType);
             writer.WriteStringValue("fullName", FullName);
             writer.WriteStringValue("id", Id);
             writer.WriteBoolValue("isCloaked", IsCloaked);

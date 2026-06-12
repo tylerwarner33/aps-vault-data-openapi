@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ vars.DOTNET_VERSION }}
 
@@ -62,7 +62,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            git add Generated/ApiClients
+            git add -f Generated/ApiClients
             git commit -m "chore: regenerate API clients from VaultDataApi.yml"
             git push
           else

@@ -53,7 +53,7 @@ namespace VaultDataApi.Models
         /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
         public static global::VaultDataApi.Models.FileVersionCollection CreateFromDiscriminatorValue(IParseNode parseNode)
         {
-            _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
+            if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
             return new global::VaultDataApi.Models.FileVersionCollection();
         }
         /// <summary>
@@ -75,7 +75,7 @@ namespace VaultDataApi.Models
         /// <param name="writer">Serialization writer to use to serialize this model</param>
         public virtual void Serialize(ISerializationWriter writer)
         {
-            _ = writer ?? throw new ArgumentNullException(nameof(writer));
+            if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteObjectValue<global::VaultDataApi.Models.FileVersionCollection_included>("included", Included);
             writer.WriteObjectValue<global::VaultDataApi.Models.CursorBasedPagination>("pagination", Pagination);
             writer.WriteCollectionOfObjectValues<global::VaultDataApi.Models.FileVersionCollection.FileVersionCollection_results>("results", Results);
@@ -110,8 +110,8 @@ namespace VaultDataApi.Models
             /// <param name="parseNode">The parse node to use to read the discriminator value and create the object</param>
             public static global::VaultDataApi.Models.FileVersionCollection.FileVersionCollection_results CreateFromDiscriminatorValue(IParseNode parseNode)
             {
-                _ = parseNode ?? throw new ArgumentNullException(nameof(parseNode));
-                var mappingValue = parseNode.GetChildNode("")?.GetStringValue();
+                if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
+                var mappingValue = parseNode.GetChildNode("entityType")?.GetStringValue();
                 var result = new global::VaultDataApi.Models.FileVersionCollection.FileVersionCollection_results();
                 if("FileVersion".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
                 {
@@ -145,7 +145,7 @@ namespace VaultDataApi.Models
             /// <param name="writer">Serialization writer to use to serialize this model</param>
             public virtual void Serialize(ISerializationWriter writer)
             {
-                _ = writer ?? throw new ArgumentNullException(nameof(writer));
+                if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
                 if(FileVersion != null)
                 {
                     writer.WriteObjectValue<global::VaultDataApi.Models.FileVersion>(null, FileVersion);
