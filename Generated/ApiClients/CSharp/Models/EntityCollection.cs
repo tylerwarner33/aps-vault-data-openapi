@@ -159,40 +159,15 @@ namespace VaultDataApi.Models
             public static global::VaultDataApi.Models.EntityCollection.EntityCollection_results CreateFromDiscriminatorValue(IParseNode parseNode)
             {
                 if(ReferenceEquals(parseNode, null)) throw new ArgumentNullException(nameof(parseNode));
-                var mappingValue = parseNode.GetChildNode("entityType")?.GetStringValue();
                 var result = new global::VaultDataApi.Models.EntityCollection.EntityCollection_results();
-                if("ChangeOrder".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.ChangeOrder = new global::VaultDataApi.Models.ChangeOrder();
-                }
-                else if("ChangeOrderExtended".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.ChangeOrderExtended = new global::VaultDataApi.Models.ChangeOrderExtended();
-                }
-                else if("FileVersion".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.FileVersion = new global::VaultDataApi.Models.FileVersion();
-                }
-                else if("FileVersionExtended".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.FileVersionExtended = new global::VaultDataApi.Models.FileVersionExtended();
-                }
-                else if("Folder".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.Folder = new global::VaultDataApi.Models.Folder();
-                }
-                else if("FolderExtended".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.FolderExtended = new global::VaultDataApi.Models.FolderExtended();
-                }
-                else if("ItemVersion".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.ItemVersion = new global::VaultDataApi.Models.ItemVersion();
-                }
-                else if("LinkEntity".Equals(mappingValue, StringComparison.OrdinalIgnoreCase))
-                {
-                    result.LinkEntity = new global::VaultDataApi.Models.LinkEntity();
-                }
+                result.ChangeOrder = new global::VaultDataApi.Models.ChangeOrder();
+                result.ChangeOrderExtended = new global::VaultDataApi.Models.ChangeOrderExtended();
+                result.FileVersion = new global::VaultDataApi.Models.FileVersion();
+                result.FileVersionExtended = new global::VaultDataApi.Models.FileVersionExtended();
+                result.Folder = new global::VaultDataApi.Models.Folder();
+                result.FolderExtended = new global::VaultDataApi.Models.FolderExtended();
+                result.ItemVersion = new global::VaultDataApi.Models.ItemVersion();
+                result.LinkEntity = new global::VaultDataApi.Models.LinkEntity();
                 return result;
             }
             /// <summary>
@@ -201,37 +176,9 @@ namespace VaultDataApi.Models
             /// <returns>A IDictionary&lt;string, Action&lt;IParseNode&gt;&gt;</returns>
             public virtual IDictionary<string, Action<IParseNode>> GetFieldDeserializers()
             {
-                if(ChangeOrder != null)
+                if(ChangeOrder != null || ChangeOrderExtended != null || FileVersion != null || FileVersionExtended != null || Folder != null || FolderExtended != null || ItemVersion != null || LinkEntity != null)
                 {
-                    return ChangeOrder.GetFieldDeserializers();
-                }
-                else if(ChangeOrderExtended != null)
-                {
-                    return ChangeOrderExtended.GetFieldDeserializers();
-                }
-                else if(FileVersion != null)
-                {
-                    return FileVersion.GetFieldDeserializers();
-                }
-                else if(FileVersionExtended != null)
-                {
-                    return FileVersionExtended.GetFieldDeserializers();
-                }
-                else if(Folder != null)
-                {
-                    return Folder.GetFieldDeserializers();
-                }
-                else if(FolderExtended != null)
-                {
-                    return FolderExtended.GetFieldDeserializers();
-                }
-                else if(ItemVersion != null)
-                {
-                    return ItemVersion.GetFieldDeserializers();
-                }
-                else if(LinkEntity != null)
-                {
-                    return LinkEntity.GetFieldDeserializers();
+                    return ParseNodeHelper.MergeDeserializersForIntersectionWrapper(ChangeOrder, ChangeOrderExtended, FileVersion, FileVersionExtended, Folder, FolderExtended, ItemVersion, LinkEntity);
                 }
                 return new Dictionary<string, Action<IParseNode>>();
             }
@@ -242,38 +189,7 @@ namespace VaultDataApi.Models
             public virtual void Serialize(ISerializationWriter writer)
             {
                 if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
-                if(ChangeOrder != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.ChangeOrder>(null, ChangeOrder);
-                }
-                else if(ChangeOrderExtended != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.ChangeOrderExtended>(null, ChangeOrderExtended);
-                }
-                else if(FileVersion != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.FileVersion>(null, FileVersion);
-                }
-                else if(FileVersionExtended != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.FileVersionExtended>(null, FileVersionExtended);
-                }
-                else if(Folder != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.Folder>(null, Folder);
-                }
-                else if(FolderExtended != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.FolderExtended>(null, FolderExtended);
-                }
-                else if(ItemVersion != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.ItemVersion>(null, ItemVersion);
-                }
-                else if(LinkEntity != null)
-                {
-                    writer.WriteObjectValue<global::VaultDataApi.Models.LinkEntity>(null, LinkEntity);
-                }
+                writer.WriteObjectValue<global::VaultDataApi.Models.ChangeOrder>(null, ChangeOrder, ChangeOrderExtended, FileVersion, FileVersionExtended, Folder, FolderExtended, ItemVersion, LinkEntity);
             }
         }
     }
